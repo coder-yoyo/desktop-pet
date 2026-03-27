@@ -29,7 +29,7 @@ body {
   position: absolute;
   top: 1.2rem;
   left: 1.2rem;
-  width: min(92vw, 420px);
+  width: min(92vw, 480px);
   padding: 1rem 1.1rem;
   border-radius: 16px;
   background: rgb(255 255 255 / 72%);
@@ -59,9 +59,25 @@ body {
   left: 0;
   top: 0;
   z-index: 20;
-  width: 180px;
-  pointer-events: none;
+  width: 260px;
+  user-select: none;
   transition: transform 120ms linear;
+}
+
+.drag-handle {
+  width: 100%;
+  margin-bottom: 0.35rem;
+  padding: 0.34rem 0.62rem;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  background: rgb(255 255 255 / 94%);
+  color: #0f172a;
+  font-size: 0.74rem;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .pet-character {
@@ -125,7 +141,7 @@ body {
 .pet-body {
   position: relative;
   width: 120px;
-  height: 95px;
+  height: 90px;
   margin: -2px auto 0;
   border-radius: 26px;
   background: linear-gradient(180deg, #fb923c, #f97316);
@@ -133,15 +149,16 @@ body {
 
 .arm {
   --arm-angle: 0deg;
+  --paw-offset: 0px;
   position: absolute;
-  top: 16px;
+  top: 13px;
   width: 18px;
-  height: 58px;
+  height: 62px;
   background: #fdba74;
   border-radius: 18px;
   transform-origin: top center;
-  transform: rotate(var(--arm-angle));
-  transition: transform 140ms ease;
+  transform: rotate(var(--arm-angle)) translateY(var(--paw-offset));
+  transition: transform 80ms linear;
 }
 
 .arm.left {
@@ -152,21 +169,64 @@ body {
   right: -6px;
 }
 
-.tail {
-  --wag-speed: 0.8s;
-  position: absolute;
-  right: -18px;
-  top: 38px;
-  width: 26px;
-  height: 12px;
-  border-radius: 999px;
-  background: #ea580c;
-  transform-origin: left center;
-  animation: wag var(--wag-speed) infinite alternate ease-in-out;
+.virtual-keyboard {
+  width: 250px;
+  margin-top: -8px;
+  padding: 0.52rem;
+  border-radius: 12px;
+  background: rgb(15 23 42 / 90%);
+  box-shadow: 0 8px 16px rgb(2 6 23 / 30%);
+  transition: transform 120ms ease;
+}
+
+.virtual-keyboard.pulse {
+  transform: translateY(2px);
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.28rem;
+  margin-bottom: 0.28rem;
+}
+
+.key {
+  min-width: 19px;
+  text-align: center;
+  padding: 0.16rem 0.24rem;
+  border-radius: 6px;
+  font-size: 0.62rem;
+  color: #cbd5e1;
+  background: #334155;
+  border: 1px solid #475569;
+  transition: all 90ms ease;
+}
+
+.key.active {
+  transform: translateY(1px);
+  color: #0f172a;
+  background: #22d3ee;
+  border-color: #67e8f9;
+}
+
+.space-key {
+  width: 74%;
+  margin: 0.2rem auto 0;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.2rem;
+  font-size: 0.64rem;
+  color: #bae6fd;
+  border: 1px solid #0ea5e9;
+}
+
+.space-key.active {
+  color: #082f49;
+  background: #67e8f9;
 }
 
 .pet-bubble {
-  margin-top: 0.65rem;
+  margin-top: 0.58rem;
   padding: 0.52rem 0.7rem;
   border-radius: 12px;
   background: rgb(255 255 255 / 92%);
@@ -209,33 +269,12 @@ body {
   background: #7c3aed;
 }
 
-.mode-dragging {
+.mode-mouse {
   background: #0891b2;
-}
-
-.mode-clicking {
-  background: #dc2626;
 }
 
 .pet-character.typing .eye {
   transform: scaleY(0.66);
-}
-
-.pet-character.clicking .mouth {
-  width: 14px;
-}
-
-.pet-character.dragging {
-  animation: bob 0.5s infinite alternate;
-}
-
-@keyframes wag {
-  from {
-    transform: rotate(-24deg);
-  }
-  to {
-    transform: rotate(24deg);
-  }
 }
 
 @keyframes blink {
@@ -247,14 +286,5 @@ body {
   46%,
   50% {
     transform: scaleY(0.12);
-  }
-}
-
-@keyframes bob {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-4px);
   }
 }

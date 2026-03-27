@@ -1,107 +1,104 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export type PetMode = 'idle' | 'typing' | 'dragging' | 'clicking'
+export type PetMode = 'idle' | 'typing' | 'mouse'
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max)
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 
 export const usePetStore = defineStore('pet', () => {
-  const x = ref(260)
-  const y = ref(260)
+  const x = ref(36)
+  const y = ref(340)
   const mode = ref<PetMode>('idle')
-  const energy = ref(90)
-  const message = ref('我在陪你工作，随时待命！')
+  const energy = ref(92)
+  const message = ref('我固定在这里陪你，手会跟着你的操作动起来。')
+
+  const pointerX = ref(window.innerWidth / 2)
+  const pointerY = ref(window.innerHeight / 2)
+  const keyboardPulse = ref(false)
 
   let typingTimer: ReturnType<typeof setTimeout> | null = null
-  let clickTimer: ReturnType<typeof setTimeout> | null = null
+  let pulseTimer: ReturnType<typeof setTimeout> | null = null
 
   const petStyle = computed(() => ({
     transform: `translate3d(${x.value}px, ${y.value}px, 0)`
   }))
 
+  const pointerInfluence = computed(() => {
+    const centerX = x.value + 120
+    const centerY = y.value + 86
+    const dx = clamp((pointerX.value - centerX) / 160, -1, 1)
+    const dy = clamp((pointerY.value - centerY) / 140, -1, 1)
+    return { dx, dy }
+  })
+
   const leftArmAngle = computed(() => {
-    switch (mode.value) {
-      case 'typing':
-        return '-22deg'
-      case 'dragging':
-        return '30deg'
-      case 'clicking':
-        return '8deg'
-      default:
-        return '-6deg'
-    }
+    const { dx, dy } = pointerInfluence.value
+    const base = -12 + dx * 20 + dy * 8
+    return `${base.toFixed(1)}deg`
   })
 
   const rightArmAngle = computed(() => {
-    switch (mode.value) {
-      case 'typing':
-        return '24deg'
-      case 'dragging':
-        return '-10deg'
-      case 'clicking':
-        return '-38deg'
-      default:
-        return '6deg'
-    }
+    const { dx, dy } = pointerInfluence.value
+    const base = 12 + dx * 18 - dy * 7
+    return `${base.toFixed(1)}deg`
   })
 
-  const tailWagSpeed = computed(() => {
-    switch (mode.value) {
-      case 'typing':
-        return '0.42s'
-      case 'dragging':
-        return '0.5s'
-      case 'clicking':
-        return '0.35s'
-      default:
-        return '0.8s'
-    }
+  const pawOffset = computed(() => {
+    if (mode.value === 'typing') return '-3px'
+    return `${(pointerInfluence.value.dy * 2).toFixed(1)}px`
   })
 
   const companionText = computed(() => {
-    if (mode.value === 'typing') return '键盘节奏不错，我来打拍子！'
-    if (mode.value === 'dragging') return '我跟上你的鼠标啦～'
-    if (mode.value === 'clicking') return '收到点击，执行喵！'
+    if (mode.value === 'typing') return '键盘在前面，我跟你一起敲～'
+    if (mode.value === 'mouse') return '我盯着你的鼠标，手也在调整方向。'
     return message.value
   })
 
-  function setMode(nextMode: PetMode) {
-    mode.value = nextMode
+  const focusedKeys = computed(() => {
+    if (mode.value === 'typing') return ['Q', 'W', 'E', 'A', 'S', 'D']
+    if (mode.value === 'mouse') return ['J', 'K', 'L']
+    return ['F', 'G', 'H']
+  })
+
+  function setPetPosition(nextX: number, nextY: number) {
+    x.value = clamp(nextX, 8, window.innerWidth - 300)
+    y.value = clamp(nextY, 12, window.innerHeight - 290)
   }
 
-  function recoverIdle(delay = 500) {
-    window.clearTimeout(typingTimer ?? undefined)
-    typingTimer = window.setTimeout(() => {
-      mode.value = 'idle'
-      energy.value = clamp(energy.value + 2, 0, 100)
-    }, delay)
+  function triggerKeyboardPulse() {
+    window.clearTimeout(pulseTimer ?? undefined)
+    keyboardPulse.value = true
+    pulseTimer = window.setTimeout(() => {
+      keyboardPulse.value = false
+    }, 130)
   }
 
   function onKeyboardActivity() {
     mode.value = 'typing'
-    energy.value = clamp(energy.value - 1, 0, 100)
-    recoverIdle(520)
+    energy.value = clamp(energy.value - 0.7, 0, 100)
+    triggerKeyboardPulse()
+    window.clearTimeout(typingTimer ?? undefined)
+    typingTimer = window.setTimeout(() => {
+      mode.value = 'idle'
+      energy.value = clamp(energy.value + 1.4, 0, 100)
+    }, 420)
   }
 
-  function onPointerMove(clientX: number, clientY: number, dragging: boolean) {
-    x.value = clamp(clientX - 82, 10, window.innerWidth - 170)
-    y.value = clamp(clientY - 140, 12, window.innerHeight - 190)
-    mode.value = dragging ? 'dragging' : 'idle'
-    energy.value = clamp(energy.value - (dragging ? 0.16 : 0.06), 0, 100)
+  function onPointerMove(clientX: number, clientY: number) {
+    pointerX.value = clientX
+    pointerY.value = clientY
+    if (mode.value !== 'typing') {
+      mode.value = 'mouse'
+    }
+    energy.value = clamp(energy.value - 0.05, 0, 100)
   }
 
   function onPointerClick() {
-    window.clearTimeout(clickTimer ?? undefined)
-    mode.value = 'clicking'
-    energy.value = clamp(energy.value - 0.8, 0, 100)
-    clickTimer = window.setTimeout(() => {
-      mode.value = 'idle'
-    }, 280)
-  }
-
-  function setMessage(next: string) {
-    message.value = next
+    triggerKeyboardPulse()
+    if (mode.value !== 'typing') {
+      mode.value = 'mouse'
+    }
+    energy.value = clamp(energy.value - 0.3, 0, 100)
   }
 
   return {
@@ -110,15 +107,16 @@ export const usePetStore = defineStore('pet', () => {
     mode,
     energy,
     message,
+    keyboardPulse,
+    focusedKeys,
     petStyle,
     leftArmAngle,
     rightArmAngle,
-    tailWagSpeed,
+    pawOffset,
     companionText,
-    setMode,
+    setPetPosition,
     onKeyboardActivity,
     onPointerMove,
-    onPointerClick,
-    setMessage
+    onPointerClick
   }
 })
