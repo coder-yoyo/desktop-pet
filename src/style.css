@@ -1,0 +1,260 @@
+:root {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+  color: #1e293b;
+  background: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.desktop-canvas {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 20%, #c7d2fe 0%, transparent 36%),
+    radial-gradient(circle at 80% 35%, #fde68a 0%, transparent 34%),
+    linear-gradient(140deg, #dbeafe 0%, #d8b4fe 52%, #bfdbfe 100%);
+}
+
+.intro-panel {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  width: min(92vw, 420px);
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 72%);
+  border: 1px solid rgb(255 255 255 / 50%);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 10%);
+}
+
+.intro-panel h1 {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+}
+
+.intro-panel p {
+  margin: 0.6rem 0;
+  color: #334155;
+}
+
+.intro-panel ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #475569;
+}
+
+.pet-wrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 20;
+  width: 180px;
+  pointer-events: none;
+  transition: transform 120ms linear;
+}
+
+.pet-character {
+  position: relative;
+  width: 132px;
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 10px rgb(30 41 59 / 24%));
+}
+
+.pet-head {
+  position: relative;
+  width: 108px;
+  height: 94px;
+  margin: 0 auto;
+  border-radius: 44px;
+  background: linear-gradient(180deg, #fde68a 0%, #f59e0b 80%);
+}
+
+.ear {
+  position: absolute;
+  top: -16px;
+  width: 30px;
+  height: 26px;
+  border-radius: 60% 60% 20% 20%;
+  background: #f97316;
+}
+
+.ear-left {
+  left: 12px;
+  transform: rotate(-24deg);
+}
+
+.ear-right {
+  right: 12px;
+  transform: rotate(24deg);
+}
+
+.eyes {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  padding-top: 34px;
+}
+
+.eye {
+  width: 10px;
+  height: 14px;
+  border-radius: 999px;
+  background: #0f172a;
+  animation: blink 4s infinite;
+}
+
+.mouth {
+  width: 22px;
+  height: 9px;
+  border-bottom: 4px solid #7c2d12;
+  border-radius: 0 0 16px 16px;
+  margin: 10px auto 0;
+}
+
+.pet-body {
+  position: relative;
+  width: 120px;
+  height: 95px;
+  margin: -2px auto 0;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #fb923c, #f97316);
+}
+
+.arm {
+  --arm-angle: 0deg;
+  position: absolute;
+  top: 16px;
+  width: 18px;
+  height: 58px;
+  background: #fdba74;
+  border-radius: 18px;
+  transform-origin: top center;
+  transform: rotate(var(--arm-angle));
+  transition: transform 140ms ease;
+}
+
+.arm.left {
+  left: -6px;
+}
+
+.arm.right {
+  right: -6px;
+}
+
+.tail {
+  --wag-speed: 0.8s;
+  position: absolute;
+  right: -18px;
+  top: 38px;
+  width: 26px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ea580c;
+  transform-origin: left center;
+  animation: wag var(--wag-speed) infinite alternate ease-in-out;
+}
+
+.pet-bubble {
+  margin-top: 0.65rem;
+  padding: 0.52rem 0.7rem;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 6px 16px rgb(15 23 42 / 14%);
+  border: 1px solid rgb(255 255 255 / 70%);
+}
+
+.pet-bubble p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #0f172a;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.34rem;
+  gap: 0.6rem;
+}
+
+.mode-badge {
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 0.12rem 0.46rem;
+  color: white;
+  text-transform: capitalize;
+}
+
+.energy {
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.mode-idle {
+  background: #475569;
+}
+
+.mode-typing {
+  background: #7c3aed;
+}
+
+.mode-dragging {
+  background: #0891b2;
+}
+
+.mode-clicking {
+  background: #dc2626;
+}
+
+.pet-character.typing .eye {
+  transform: scaleY(0.66);
+}
+
+.pet-character.clicking .mouth {
+  width: 14px;
+}
+
+.pet-character.dragging {
+  animation: bob 0.5s infinite alternate;
+}
+
+@keyframes wag {
+  from {
+    transform: rotate(-24deg);
+  }
+  to {
+    transform: rotate(24deg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  45%,
+  100% {
+    transform: scaleY(1);
+  }
+  46%,
+  50% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-4px);
+  }
+}
